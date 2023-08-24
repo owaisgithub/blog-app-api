@@ -1,43 +1,69 @@
-# Project Name
+# Blog API App
 
-Short description of your project.
+Create blog api 
 
 ## Table of Contents
 
-- [Features](#features)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
 - [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
 
-## Features
-
-- List the key features of your project here.
-
-## Getting Started
-
-Provide instructions on how to set up your project locally.
 
 ### Prerequisites
 
-- List any software or tools that users need to have installed before setting up the project.
+- Python must be installed on your System.
 
 ### Installation
 
-1. Clone the repository: `git clone https://github.com/your-username/your-project.git`
-2. Navigate to the project directory: `cd your-project`
-3. Install dependencies: `pip install -r requirements.txt` or `npm install` or any other relevant command.
+1. Clone the repository: `git clone https://github.com/owaisgithub/blog-app-api.git`
+2. Navigate to the project directory: `cd blog-app-api`
+3. Install python package `pip install virtualenv`
+4. Create a virtual env for installing project related dependencies `virtualenv <env-name>`
+5. Actiavte the virtual env `<env-name>\Script\activate`
+6. Install dependencies: `pip install -r requirements.txt`
+7. Do some migration `python manage.py makemigrations`
+                     `python manage.py migrate`
+                     `python manage.py createsuperuser`  for admin access
+8. Start development server `python manage.py runserver`
 
 ## Usage
 
-Provide examples or instructions on how to use your project.
+- After development server start. There are some endpoints you can request and get some response from it.
+- Endpoints are:
+- `localhost:8000/ or 127.0.0.1:8000/`
+1. `api/users/create/`   Register or Create a user account to given data in json.
+                        Example:- post request
+                        {
+                            "first_name":"user first name",
+                            "last_name":"user last name",
+                            "email":"user@gmail.com",
+                            "password":"12345678"
+                        }
+2. `api/users/authenticate/`   After registration you can login with email and password
+                               Example:- post request
+                               {
+                                    "email":"user@gmail.com",
+                                    "password":"12345678"
+                               }
+                               It will give a jwt token as response
 
-## Contributing
+3. `api/users/logout/`   It invalidates the token so that the token cannot be used further
 
-Explain how others can contribute to your project. Include guidelines for opening issues and making pull requests.
+4. `api/blog/post/`      Send the data on this endpoint to create a blog post (with jwt token).
+                         Example:- post request
+                         {
+                            "title":"Title of Post",
+                            "content":"Content of Post"
+                         }
 
-## License
+5. `api/blog/post/post_id/` Update the post  (with jwt token)
 
-Mention the license under which your project is released. For example: "This project is licensed under the [MIT License](LICENSE)."
+6. `api/blog/all-posts/`   Get all the blog post (jwt token is not required)
+
+7. `api/blog/comment/post_id/`  send the data on this endpoint for a specific post (with jwt token)
+                                Example:- post request
+                                {
+                                    "content":"Comment"
+                                }
+
+8. `api/blog/post-comments/post_id/`  Get all the comments related comments with specific post (jwt token is not required)

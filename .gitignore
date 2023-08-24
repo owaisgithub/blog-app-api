@@ -11,3 +11,7 @@ __pycache__/
 
 # Ignore database file
 db.sqlite3
+
+# Ignore migration file
+*/migrations/0001_initial.py
+*/migrations/0002_initial.py
