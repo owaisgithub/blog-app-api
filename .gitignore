@@ -13,8 +13,10 @@ __pycache__/
 db.sqlite3
 
 # Ignore migration file
-*/migrations/0001_initial.py
-*/migrations/0002_initial.py
+# */migrations/0001_initial.py
+# */migrations/0002_initial.py
+# */migrations/0003_like.py
+*/migrations/*
 
 ## Ignore ENV File
 .env

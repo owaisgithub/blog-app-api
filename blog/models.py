@@ -2,6 +2,10 @@ from django.db import models
 
 from users.models import User
 
+from datetime import datetime
+
+import pytz
+
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=500)
@@ -28,3 +32,10 @@ class Comment(models.Model):
 
     def __str__(self) -> str:
         return self.content[:50]
+
+class Like(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
+
+    class Meta:
+        db_table = 'Likes'

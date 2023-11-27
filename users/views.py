@@ -50,11 +50,16 @@ class LoginAPIView(APIView):
         }
         token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM) # generate a token
 
-        return Response({'token': token}, status=status.HTTP_200_OK) # return only token
+        data = {
+            'user' : email,
+            'token' : token
+        }
+
+        return Response(data, status=status.HTTP_200_OK) # return only token
     
 
 class LogoutAPIView(APIView):
-    def post(self, request):
+    def get(self, request):
         auth_token = request.META.get('HTTP_AUTHORIZATION')
         auth_token = auth_token.split(' ')[1]
 
@@ -66,5 +71,5 @@ class LogoutAPIView(APIView):
         serializer = LogoutSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response({'status' : True})
         return Response(serializer.errors)
