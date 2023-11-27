@@ -48,6 +48,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
+    class Meta:
+        db_table = 'Users'
+
     def __str__(self) -> str:
         return self.email
     
@@ -63,6 +66,9 @@ class BlacklistedToken(models.Model):
     id = models.BigAutoField(primary_key=True, serialize=False)
     token = models.CharField(max_length=255)
     blacklisted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'BlacklistedToken'
 
     def __str__(self) -> str:
         return self.token

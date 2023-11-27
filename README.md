@@ -30,8 +30,8 @@ Create blog api
 
 - After development server start. There are some endpoints you can request and get some response from it.
 - Endpoints are:
-- `localhost:8000/ or 127.0.0.1:8000/`
-1. `api/users/create/`   Register or Create a user account to given data in json.
+- `localhost:8000/ or 127.0.0.1:8000/api/v1/`
+1. `user/create/`   Register or Create a user account to given data in json.
                         Example:- post request
                         {
                             "first_name":"user first name",
@@ -39,7 +39,7 @@ Create blog api
                             "email":"user@gmail.com",
                             "password":"12345678"
                         }
-2. `api/users/authenticate/`   After registration you can login with email and password
+2. `user/authenticate/`   After registration you can login with email and password
                                Example:- post request
                                {
                                     "email":"user@gmail.com",
@@ -47,23 +47,23 @@ Create blog api
                                }
                                It will give a jwt token as response
 
-3. `api/users/logout/`   It invalidates the token so that the token cannot be used further
+3. `user/logout/`   It invalidates the token so that the token cannot be used further
 
-4. `api/blog/post/`      Send the data on this endpoint to create a blog post (with jwt token).
+4. `blog/post/`      Send the data on this endpoint to create a blog post (with jwt token).
                          Example:- post request
                          {
                             "title":"Title of Post",
                             "content":"Content of Post"
                          }
 
-5. `api/blog/post/post_id/` Update the post  (with jwt token)
+5. `blog/post/post_id/` Update the post  (with jwt token)
 
-6. `api/blog/all-posts/`   Get all the blog post (jwt token is not required)
+6. `blog/all-posts/`   Get all the blog post (jwt token is not required)
 
-7. `api/blog/comment/post_id/`  send the data on this endpoint for a specific post (with jwt token)
+7. `blog/comment/post_id/`  send the data on this endpoint for a specific post (with jwt token)
                                 Example:- post request
                                 {
                                     "content":"Comment"
                                 }
 
-8. `api/blog/post-comments/post_id/`  Get all the comments related comments with specific post (jwt token is not required)
+8. `blog/post-comments/post_id/`  Get all the comments related comments with specific post (jwt token is not required)

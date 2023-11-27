@@ -14,6 +14,8 @@ from .serializers import RegistrationSerializer
 from .serializers import LoginSerializer
 from .serializers import LogoutSerializer
 
+import json
+
 
 class RegistrationAPIView(APIView):
     permission_classes = [AllowAny]
@@ -23,7 +25,11 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            data = {
+                'name' : serializer.data['first_name'] + " " + serializer.data['last_name'],
+                'email' : serializer.data['email']
+            }
+            return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class LoginAPIView(APIView):
