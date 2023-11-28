@@ -13,6 +13,9 @@ import jwt
 from .serializers import RegistrationSerializer
 from .serializers import LoginSerializer
 from .serializers import LogoutSerializer
+from .serializers import UserSerializer
+
+from .models import User
 
 import json
 
@@ -39,10 +42,11 @@ class LoginAPIView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
+        print(email, password)
         user = auth.authenticate(email=email, password=password)
     
         if user is None:
-            return Response({'detail':'invalid credintial'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'detail':'invalid credintials'}, status=status.HTTP_401_UNAUTHORIZED)
         
         payload = {
             'user_id': user.id,
@@ -51,7 +55,6 @@ class LoginAPIView(APIView):
         token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM) # generate a token
 
         data = {
-            'user' : email,
             'token' : token
         }
 
@@ -71,5 +74,12 @@ class LogoutAPIView(APIView):
         serializer = LogoutSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'status' : True})
+            return Response({'status' : True}, status=status.HTTP_200_OK)
         return Response(serializer.errors)
+
+class ProfileAPIView(APIView):
+    def get(self, request):
+        id = request.user.id
+        user = User.objects.get(id=id)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)

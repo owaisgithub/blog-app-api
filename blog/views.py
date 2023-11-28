@@ -36,7 +36,7 @@ class PostAPIView(APIView):
         user_id = request.user.id
         posts = Post.objects.filter(user_id=user_id)
         # print(posts[1].formateDatetime)
-        serializer = PostRetrieveSeriaizer(posts, many=True)
+        serializer = PostRetrieveSeriaizer(posts, many=True, context={'request':request})
         return Response(serializer.data, status=status.HTTP_200_OK)
         
     ## Post by the login user
@@ -67,10 +67,10 @@ class PostAPIView(APIView):
 
 
 class AllPostAPIView(APIView):
-    permission_classes = [AllowAny]  ## to give permission for all authentication and non-authentication users
+  ## to give permission for all authentication and non-authentication users
     def get(self, request):
-        posts = Post.objects.all() ## To get all post 
-        post_serializer = PostSerializer(posts, many=True)
+        posts = Post.objects.all().order_by('-updated_at') ## To get all post 
+        post_serializer = PostRetrieveSeriaizer(posts, many=True, context={'request':request})
         # return the list of post along its comments
         return Response(post_serializer.data, status=status.HTTP_200_OK)
 
@@ -80,7 +80,6 @@ class CommentAPIView(APIView):
     def post(self, request, post_id):
         request.data['user'] = request.user.id
         request.data['post'] = post_id
-        print(request.data)
         serializer = CommentCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -95,6 +94,7 @@ class PostCommentAPIView(APIView):
         serializer = CommentCreateSerializer(comments, many=True)
         ## return the list of comments of a post
         return Response(serializer.data)
+
 
 
 class LikeAPIView(APIView):

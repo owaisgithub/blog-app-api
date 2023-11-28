@@ -62,3 +62,8 @@ class LogoutSerializer(ModelSerializer):
     class Meta:
         model = BlacklistedToken
         fields = '__all__'
+
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'email']

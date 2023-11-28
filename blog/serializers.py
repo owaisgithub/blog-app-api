@@ -18,12 +18,6 @@ class CustomDateTimeField(serializers.DateTimeField):
         return ist_time.strftime("%d %b %Y %H:%M:%S")
 
 
-class UserSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'email']
-
-
 class CommentCreateSerializer(ModelSerializer):
     class Meta:
         model = Comment
@@ -31,12 +25,14 @@ class CommentCreateSerializer(ModelSerializer):
 
 
 class CommentRetrieveSerializer(ModelSerializer):
-    user_email = serializers.EmailField(source='user.email', read_only=True)
+    comment_user = serializers.EmailField(source='user.email', read_only=True)
     created_at = CustomDateTimeField()
 
     class Meta:
         model = Comment
-        fields = ['content', 'created_at', 'post', 'user_email']
+        fields = ['content', 'created_at', 'post', 'comment_user']
+
+    
 
 
 class LikeCreateSerializer(ModelSerializer):
@@ -51,22 +47,37 @@ class LikeCreateSerializer(ModelSerializer):
 
 
 class LikeRetrieveSerializer(ModelSerializer):
-    user = serializers.EmailField(source='user.email', read_only=True)
+    like_user = serializers.EmailField(source='user.email', read_only=True)
     class Meta:
         model = Like
-        fields = ['post', 'user']
+        fields = ['post', 'like_user']
         # fields = '__all__'
 
 
 class PostRetrieveSeriaizer(ModelSerializer):
-    user_email = serializers.EmailField(source='user.email', read_only=True)
+    post_user = serializers.EmailField(source='user.email', read_only=True)
     comments = CommentRetrieveSerializer(many=True, read_only=True)
-    likes = LikeRetrieveSerializer(many=True, read_only=True)
+    # likes = LikeRetrieveSerializer(many=True, read_only=True)
     updated_at = CustomDateTimeField()
+    like_count = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
+    like = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'content', 'updated_at', 'user_email', 'likes', 'comments']
+        fields = ['id', 'title', 'content', 'updated_at', 'post_user', 'like_count', 'like', 'comments', 'comment_count']
+
+    def get_like_count(self, obj):
+        return obj.likes.count()
+
+    def get_comment_count(self, obj):
+        return obj.comments.count()
+
+    def get_like(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return obj.likes.filter(user=user).exists()
+        return False
 
 
 class PostCreateSerializer(ModelSerializer):

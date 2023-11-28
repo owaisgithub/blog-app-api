@@ -29,6 +29,7 @@ class Comment(models.Model):
 
     class Meta:
         db_table = 'Comments'
+        ordering = ['-created_at']
 
     def __str__(self) -> str:
         return self.content[:50]
