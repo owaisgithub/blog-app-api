@@ -7,4 +7,5 @@ urlpatterns = [
     path('authenticate/', LoginAPIView.as_view()),
     path('logout/', LogoutAPIView.as_view()),
     path('profile/', ProfileAPIView.as_view()),
+    path('upload/', ImageUploadAPIView.as_view()),
 ]

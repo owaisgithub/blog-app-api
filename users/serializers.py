@@ -5,6 +5,8 @@ from django.contrib.auth import authenticate
 
 from .models import User
 from .models import BlacklistedToken
+from .models import UserImage
+from .models import UserDetail
 
 
 class RegistrationSerializer(ModelSerializer):
@@ -63,7 +65,24 @@ class LogoutSerializer(ModelSerializer):
         model = BlacklistedToken
         fields = '__all__'
 
-class UserSerializer(ModelSerializer):
+class UserImageCreateSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email']
+        fields = '__all__'
+
+class UserImageSerializer(ModelSerializer):
+    # image = serializers.ImageField(use_url=True)
+    class Meta:
+        model = UserImage
+        fields = ['image', 'user']
+
+class UserSerializer(ModelSerializer):
+    name = serializers.SerializerMethodField()
+    profile_image = UserImageSerializer()
+
+    class Meta:
+        model = User
+        fields = ['id', 'name', 'email', 'profile_image']
+
+    def get_name(self, obj):
+        return obj.get_full_name()

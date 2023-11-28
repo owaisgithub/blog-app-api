@@ -7,7 +7,6 @@ __pycache__/
 *.tmp
 
 # Ignore environment-specific files
-.env
 
 # Ignore database file
 db.sqlite3
@@ -18,4 +17,5 @@ db.sqlite3
 # */migrations/0003_like.py
 */migrations/*
 
-## Ignore ENV File
+## media folder ignore
+media

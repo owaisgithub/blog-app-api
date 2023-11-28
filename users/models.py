@@ -62,6 +62,28 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.last_name
 
 
+class UserImage(models.Model):
+    image = models.ImageField(blank=True, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile_image")
+
+    class Meta:
+        db_table = 'UserImage'
+
+    def __str__(self):
+        return self.user.email + " Profile Image"
+
+
+class UserDetail(models.Model):
+    dob = models.DateField()
+    mobile = models.CharField(max_length=15)
+    gender = models.CharField(max_length=20)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_detail')
+
+
+    class Meta:
+        db_table = 'UserDetail'
+
+
 class BlacklistedToken(models.Model):
     id = models.BigAutoField(primary_key=True, serialize=False)
     token = models.CharField(max_length=255)

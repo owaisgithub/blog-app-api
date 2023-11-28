@@ -1,19 +1,22 @@
-#from django.shortcuts import render
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.parsers import FileUploadParser
 
 from django.contrib import auth
 from django.conf import settings
 
 from datetime import datetime
 import jwt
+import json
 
 from .serializers import RegistrationSerializer
 from .serializers import LoginSerializer
 from .serializers import LogoutSerializer
 from .serializers import UserSerializer
+from .serializers import UserImageSerializer
+from .serializers import UserImageCreateSerializer
 
 from .models import User
 
@@ -82,4 +85,20 @@ class ProfileAPIView(APIView):
         id = request.user.id
         user = User.objects.get(id=id)
         serializer = UserSerializer(user)
+        # for key, value in dict(serializer.data).items:
+        #     print(key, value)
+
         return Response(serializer.data)
+
+class ImageUploadAPIView(APIView):
+    # parser_classes = [FileUploadParser]
+
+    def post(self, request, *args, **kwargs):
+        request.data['user'] = request.user.id
+        print(request.data)
+        serializer = UserImageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
