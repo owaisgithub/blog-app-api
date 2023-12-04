@@ -7,6 +7,7 @@ from .models import User
 from .models import BlacklistedToken
 from .models import UserImage
 from .models import UserDetail
+from .models import Follow
 
 
 class RegistrationSerializer(ModelSerializer):
@@ -18,7 +19,7 @@ class RegistrationSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'password']
+        fields = ['first_name', 'last_name', 'handle', 'email', 'password']
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
@@ -65,10 +66,6 @@ class LogoutSerializer(ModelSerializer):
         model = BlacklistedToken
         fields = '__all__'
 
-class UserImageCreateSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__'
 
 class UserImageSerializer(ModelSerializer):
     # image = serializers.ImageField(use_url=True)
@@ -76,13 +73,83 @@ class UserImageSerializer(ModelSerializer):
         model = UserImage
         fields = ['image', 'user']
 
+
+class UserDetailSerializer(ModelSerializer):
+    class Meta:
+        model = UserDetail
+        fields = ['dob', 'mobile', 'gender', 'user']
+
+
+class FollowSerializer(ModelSerializer):
+    class Meta:
+        model = Follow
+        fields = '__all__'
+
+class FollowersSerializer(ModelSerializer):
+    following = serializers.EmailField(source='following.email', read_only=True)
+    class Meta:
+        model = Follow
+        fields = ['following']
+
+
+class FollowingSerializer(ModelSerializer):
+    follower = serializers.EmailField(source='followers.email', read_only=True)
+    class Meta:
+        model = Follow
+        fields = ['follower']
+
+
 class UserSerializer(ModelSerializer):
-    name = serializers.SerializerMethodField()
-    profile_image = UserImageSerializer()
+    image = serializers.ImageField(source='profile_image.image')
+    dob = serializers.DateField(source='user_detail.dob')
+    mobile = serializers.CharField(source='user_detail.mobile')
+    gender = serializers.CharField(source='user_detail.gender')
+    followings = serializers.SerializerMethodField()
+    followers = serializers.SerializerMethodField()
+    follower_count = serializers.SerializerMethodField()
+    following_count = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'profile_image']
+        fields = ['id', 'first_name', 'last_name', 'handle', 'image', 'dob', 'mobile', 'gender', 'following_count', 'followings', 'follower_count', 'followers']
 
+    def get_followings(self, obj):
+        try:
+            return self.context['followings']
+        except:
+            return None
+
+    def get_followers(self, obj):
+        try:
+            return self.context['followers']
+        except:
+            return None
+
+    def get_follower_count(self, obj):
+        try:
+            return self.context['follower_count']
+        except:
+            return None
+
+    def get_following_count(self, obj):
+        try:
+            return self.context['following_count']
+        except:
+            return None
+        
+        
+class UserSearchSerializer(UserSerializer):
+    name = serializers.SerializerMethodField()
+    
+    class Meta(UserSerializer.Meta):
+        fields = ['id', 'name', 'image', 'gender', 'following_count', 'followings', 'follower_count', 'followers']
+        
     def get_name(self, obj):
-        return obj.get_full_name()
+        return obj.getFullName()
+
+
+class UserUpdateSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'handle']
+

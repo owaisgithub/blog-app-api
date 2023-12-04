@@ -36,7 +36,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
-
+    handle = models.CharField(max_length=50, null=True, blank=True, unique=True)
     email = models.EmailField(db_index=True, unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -55,11 +55,25 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
     
 
-    def get_full_name(self):
+    def getFullName(self):
         return (self.first_name + " " + self.last_name)
     
     def get_short_name(self):
         return self.last_name
+
+    @classmethod
+    def getUserById(self, user_id):
+        try:
+            return User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return None
+        
+    @classmethod
+    def getUserByHandle(self, handle):
+        try:
+            return User.objects.get(handle=handle)
+        except:
+            return None
 
 
 class UserImage(models.Model):
@@ -74,14 +88,29 @@ class UserImage(models.Model):
 
 
 class UserDetail(models.Model):
-    dob = models.DateField()
-    mobile = models.CharField(max_length=15)
-    gender = models.CharField(max_length=20)
+    dob = models.DateField(null=True, blank=True)
+    mobile = models.CharField(max_length=15, null=True, blank=True)
+    gender = models.CharField(max_length=20, null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_detail')
 
 
     class Meta:
         db_table = 'UserDetail'
+
+
+class Follow(models.Model):
+    follower = models.ForeignKey(User, related_name='following', on_delete=models.CASCADE)
+    following = models.ForeignKey(User, related_name='followers', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'Follows'
+
+    @classmethod
+    def getFollow(self, data):
+        try:
+            return Follow.objects.filter(follower=data['follower'], following=data['following'])
+        except Follow.DoesNotExist:
+            return None
 
 
 class BlacklistedToken(models.Model):

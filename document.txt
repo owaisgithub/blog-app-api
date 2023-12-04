@@ -1,0 +1,7 @@
+I want to build a social media app which is more scalable and efficient.
+I would try to use an efficeint approach which will consumme less time to perform any opertions thats why my api and server will work efficeint and get less error about my server.
+
+I used jwt token for authentication.
+when a user would request for login with his credentials, got a token. This toekn will use for authentication for every request which user perform.
+
+I am creating new model which contain the information about follower and following. It will more scalable approach.Let's do it.

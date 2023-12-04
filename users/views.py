@@ -11,14 +11,11 @@ from datetime import datetime
 import jwt
 import json
 
-from .serializers import RegistrationSerializer
-from .serializers import LoginSerializer
-from .serializers import LogoutSerializer
-from .serializers import UserSerializer
-from .serializers import UserImageSerializer
-from .serializers import UserImageCreateSerializer
+from .serializers import *
 
-from .models import User
+from .models import *
+
+from .customMethod import getFollowerAndFollowing
 
 import json
 
@@ -38,6 +35,7 @@ class RegistrationAPIView(APIView):
             return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
@@ -45,7 +43,6 @@ class LoginAPIView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
-        print(email, password)
         user = auth.authenticate(email=email, password=password)
     
         if user is None:
@@ -58,7 +55,8 @@ class LoginAPIView(APIView):
         token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM) # generate a token
 
         data = {
-            'token' : token
+            'token' : token,
+            'user': user.handle
         }
 
         return Response(data, status=status.HTTP_200_OK) # return only token
@@ -80,19 +78,32 @@ class LogoutAPIView(APIView):
             return Response({'status' : True}, status=status.HTTP_200_OK)
         return Response(serializer.errors)
 
+
 class ProfileAPIView(APIView):
     def get(self, request):
-        id = request.user.id
-        user = User.objects.get(id=id)
-        serializer = UserSerializer(user)
-        # for key, value in dict(serializer.data).items:
-        #     print(key, value)
+        try:
+            user = User.objects.get(id=request.user.id)
+            context = getFollowerAndFollowing(request.user.id)
+            serializer = UserSerializer(user, context=context)
+            return Response(serializer.data)
+        except:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        return Response(serializer.data)
+    def put(self, request):
+        try:
+            user = User.objects.get(id=request.user.id)
+            serializer = UserUpdateSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({'error':'user not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class ImageUploadAPIView(APIView):
-    # parser_classes = [FileUploadParser]
-
+    
     def post(self, request, *args, **kwargs):
         request.data['user'] = request.user.id
         print(request.data)
@@ -102,3 +113,53 @@ class ImageUploadAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserDetailAPIView(APIView):
+    def put(self, request):
+        print(request.data)
+        if not UserDetail.objects.filter(user_id=request.user.id).exists():
+            request.data['user'] = request.user.id
+            serializer = UserDetailSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        user = UserDetail.objects.get(user_id=request.user.id)
+        serializer = UserDetailSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FollowAPIView(APIView):
+    def post(self, request, user_id):
+        data = {
+            'follower' : request.user.id,
+            'following' : user_id
+        }
+        follow = Follow.getFollow(data)
+        if follow:
+            follow.delete()
+            return Response({'status': 'Unfollow'})
+        serializer = FollowSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'status': 'Follow'})
+        return Response(serializer.errors)
+
+
+class UserAPIView(APIView):
+    def get(self, request, handle):
+        try:
+            user = User.objects.get(handle=handle)
+            context = getFollowerAndFollowing(user.id)
+            serializer = UserSearchSerializer(user, context=context)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'user': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+

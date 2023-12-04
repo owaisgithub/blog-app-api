@@ -25,12 +25,12 @@ class CommentCreateSerializer(ModelSerializer):
 
 
 class CommentRetrieveSerializer(ModelSerializer):
-    comment_user = serializers.EmailField(source='user.email', read_only=True)
+    comment_user = serializers.EmailField(source='user.handle', read_only=True)
     created_at = CustomDateTimeField()
 
     class Meta:
         model = Comment
-        fields = ['content', 'created_at', 'post', 'comment_user']
+        fields = ['id', 'content', 'created_at', 'comment_user']
 
     
 
@@ -47,7 +47,7 @@ class LikeCreateSerializer(ModelSerializer):
 
 
 class LikeRetrieveSerializer(ModelSerializer):
-    like_user = serializers.EmailField(source='user.email', read_only=True)
+    like_user = serializers.EmailField(source='user.handle', read_only=True)
     class Meta:
         model = Like
         fields = ['post', 'like_user']
@@ -55,7 +55,7 @@ class LikeRetrieveSerializer(ModelSerializer):
 
 
 class PostRetrieveSeriaizer(ModelSerializer):
-    post_user = serializers.EmailField(source='user.email', read_only=True)
+    post_user = serializers.EmailField(source='user.handle', read_only=True)
     comments = CommentRetrieveSerializer(many=True, read_only=True)
     # likes = LikeRetrieveSerializer(many=True, read_only=True)
     updated_at = CustomDateTimeField()
